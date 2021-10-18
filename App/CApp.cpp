@@ -3,7 +3,7 @@
 
 #include "CApp.h"
 
-#define APP_BLANK_SPACES            "                           " //this is the most retarded thing I had to write in a const char*
+#define APP_BLANK_SPACES            "               " //this is the most retarded thing I had to write in a const char*
 
 enum e_status{
     ST_ALL_CLEARED   =  0,
@@ -124,10 +124,12 @@ void CApp::Run(){
             sprintf(strPaused, "GAME OVER");
             NF_WriteText(1, 0, 6, 16, "SELECT - Play Again");
         }
-        else
-            sprintf(strPaused, APP_BLANK_SPACES); //I know, it doesnt look really good but it does its job at cleaning the line 
-        
-        NF_WriteText(1, 0, 6, 16, APP_BLANK_SPACES);
+        else{
+            NF_WriteText(1, 0, 6, 16, APP_BLANK_SPACES);
+            NF_WriteText(1, 0, 21, 16, APP_BLANK_SPACES);
+            sprintf(strPaused, APP_BLANK_SPACES); 
+        }
+
         NF_WriteText(1, 0, 11, 10, (const char*)strPaused);
         NF_WriteText(1, 0, 3, 3, (const char*)strScore);
 
