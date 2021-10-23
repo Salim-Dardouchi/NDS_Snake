@@ -10,6 +10,7 @@ enum e_status{
     ST_GAMEOVER      =  0x1,
     ST_PAUSED        =  0x2,
     ST_RESETGAME     =  0x100,
+    ST_MAINMENU      =  0x200,
 };
 
 CApp::CApp():
@@ -18,7 +19,7 @@ CApp::CApp():
     m_iSnakeFoodTimeout(0),
     m_iSnakePoisonTimeout(0),
     m_nbSprites(0),
-    m_uStatus(ST_ALL_CLEARED),
+    m_uStatus(ST_MAINMENU),
     m_uScore(0)
 {
     _InitializeNFLib();
@@ -36,9 +37,28 @@ void CApp::Run(){
     int running = 1;
     int timer=0;
     
+    while(mIsBitsSet(m_uStatus, ST_MAINMENU)){
+        scanKeys();
+        _ProcessInputs();
+
+        NF_Move3dSprite(255, 64, 192/2-32);
+
+        NF_WriteText(1, 0, 6, 3, "Press START to play");
+
+        NF_UpdateTextLayers();
+        NF_Draw3dSprites();
+        glFlush(0);
+        swiWaitForVBlank();
+        NF_Update3dSpritesGfx();
+    }
+
+    NF_Move3dSprite(255, 256, 192);
+    NF_ClearTextLayer(1, 0);
+
     while(running){
         scanKeys();
         _ProcessInputs();
+
         if(mIsBitsSet(m_uStatus, ST_RESETGAME)){
             delete m_pSnake;
             m_pSnake = new CSnake;
@@ -66,10 +86,10 @@ void CApp::Run(){
             }
             if(m_ptFood.x>SNAKE_POS_MAX_X){
                 m_iSnakeFoodTimeout--;
-                NF_Show3dSprite(252, false);
+                NF_Show3dSprite(251, false);
             }
             else{
-                NF_Show3dSprite(252, true);
+                NF_Show3dSprite(251, true);
             }
 
             //Food Detection
@@ -88,10 +108,10 @@ void CApp::Run(){
             }
             if(m_ptPoison.x>SNAKE_POS_MAX_X){
                 m_iSnakePoisonTimeout--;
-                NF_Show3dSprite(253, false);
+                NF_Show3dSprite(252, false);
             }
             else{
-                NF_Show3dSprite(253, true);
+                NF_Show3dSprite(252, true);
             }
 
             //Poison detection
@@ -108,8 +128,8 @@ void CApp::Run(){
                 mBitsSet(m_uStatus, ST_GAMEOVER);
         }
        
-        NF_Move3dSprite(252, APP_PADDING_HRZ+(m_ptFood.x*TILE_SIZE), APP_PADDING_VRT+(m_ptFood.y*TILE_SIZE));
-        NF_Move3dSprite(253, APP_PADDING_HRZ+(m_ptPoison.x*TILE_SIZE), APP_PADDING_VRT+(m_ptPoison.y*TILE_SIZE));
+        NF_Move3dSprite(251, APP_PADDING_HRZ+(m_ptFood.x*TILE_SIZE), APP_PADDING_VRT+(m_ptFood.y*TILE_SIZE));
+        NF_Move3dSprite(252, APP_PADDING_HRZ+(m_ptPoison.x*TILE_SIZE), APP_PADDING_VRT+(m_ptPoison.y*TILE_SIZE));
 
         //Showing score
         char strScore[32] = "";
@@ -125,8 +145,7 @@ void CApp::Run(){
             NF_WriteText(1, 0, 6, 16, "SELECT - Play Again");
         }
         else{
-            NF_WriteText(1, 0, 6, 16, APP_BLANK_SPACES);
-            NF_WriteText(1, 0, 21, 16, APP_BLANK_SPACES);
+            NF_ClearTextLayer(1, 0);
             sprintf(strPaused, APP_BLANK_SPACES); 
         }
 
@@ -184,9 +203,14 @@ void CApp::_InitializeNFLib(){
     
     /*We loaded all of our sprites */
 
-    for(int k=250; k<SPRITE_NUMBER+250; k++){
-        NF_Create3dSprite(k, k-250, k-250, 256+TILE_SIZE, 0);
+    for(int k=0; k<SPRITE_NUMBER; k++){
+        NF_Create3dSprite(k+249, k, k, 256, 192);
     }
+
+    LoadSpriteAndPal("sprite/snakelogo", 6, 128, 64);
+    NF_Vram3dSpriteGfx(6, 6, true);
+    NF_Vram3dSpritePal(6, 6);
+    NF_Create3dSprite(255, 6, 6, 0, 0);
 
     for(int k=0; k<2; k++)    
         _CreateNewBodySprite();
@@ -219,11 +243,15 @@ void CApp::_ProcessInputs(){
     }
 
     if(keys & KEY_START){
-        if(mIsBitsClr(m_uStatus, ST_GAMEOVER)){
+        if(mIsBitsSet(m_uStatus, ST_MAINMENU))
+            m_uStatus=ST_ALL_CLEARED;
+
+        else if(mIsBitsClr(m_uStatus, ST_GAMEOVER)){
             mBitsTgl(m_uStatus, ST_PAUSED);
             NF_PlayRawSound(2, 127, 64, false, 0);
         }
     }
+
 
     if(keys & KEY_SELECT){
         if(mIsBitsSet(m_uStatus, ST_GAMEOVER))

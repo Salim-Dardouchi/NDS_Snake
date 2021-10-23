@@ -91,9 +91,9 @@ void CSnake::Draw(){
 
 	while(pScan){
 		if(!pScan->m_pPrev)
-			NF_Move3dSprite(250, APP_PADDING_HRZ+(pScan->m_iPosX*TILE_SIZE), APP_PADDING_HRZ+(pScan->m_iPosY*TILE_SIZE));
+			NF_Move3dSprite(249, APP_PADDING_HRZ+(pScan->m_iPosX*TILE_SIZE), APP_PADDING_HRZ+(pScan->m_iPosY*TILE_SIZE));
 		else if(!pScan->m_pNext)
-			NF_Move3dSprite(251, APP_PADDING_HRZ+(pScan->m_iPosX*TILE_SIZE), APP_PADDING_HRZ+(pScan->m_iPosY*TILE_SIZE));
+			NF_Move3dSprite(250, APP_PADDING_HRZ+(pScan->m_iPosX*TILE_SIZE), APP_PADDING_HRZ+(pScan->m_iPosY*TILE_SIZE));
 		else{
 			NF_Move3dSprite(iSelectSprite, APP_PADDING_HRZ+(pScan->m_iPosX*TILE_SIZE), APP_PADDING_HRZ+(pScan->m_iPosY*TILE_SIZE));
 			iSelectSprite++;
