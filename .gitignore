@@ -1,0 +1,5 @@
+build/
+.vscode/
+nds_snake.elf
+nds_snake.nds
+
